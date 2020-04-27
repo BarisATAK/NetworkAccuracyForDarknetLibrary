@@ -5,7 +5,7 @@
 #include <msclr/marshal_cppstd.h>
 
 
-#define Tolerance 0.003 //0.005 // -->Merkeze uzakl˝k fark˝
+#define Tolerance 0.003 //0.005 // -->Merkeze uzakl√Ωk fark√Ω
 
 namespace NetworkCompareForDarknet {
 
@@ -356,26 +356,29 @@ namespace NetworkCompareForDarknet {
 
 			for (int f_no = 0; f_no < fileCount; f_no++) 
 				correctBoxesArray[f_no] = (int*)malloc((frameCount) * sizeof(int));
+				
+			float euclidian_dist;
 
 			for (int f_no = 0; f_no < fileCount - 1; f_no++) {
 				correctBoxCount = 0;
 				for (int f = 0; f < frameCount; f++) {
 					for (int i = 0; centerArray[0][f][i][0] != 32; i++) {
 						if (f_no == 0)firstFileBoxCount++;
-
-						yolo_x_up   = centerArray[0][f][i][0] + Tolerance;
-						yolo_x_down = centerArray[0][f][i][0] - Tolerance;
-
-						yolo_y_up   = centerArray[0][f][i][1] + Tolerance;
-						yolo_y_down = centerArray[0][f][i][1] - Tolerance;
+						
+						x1 = centerArray[0][f][i][0];
+						y1 = centerArray[0][f][i][1];
 
 						for (int j = 0; centerArray[f_no + 1][f][j][0] != 32; j++) {
-							if (yolo_x_up > centerArray[f_no + 1][f][j][0] && yolo_x_down < centerArray[f_no + 1][f][j][0])
-								if (yolo_y_up > centerArray[f_no + 1][f][j][1] && yolo_y_down < centerArray[f_no + 1][f][j][1])
-									correctBoxCount++;
+
+							x2 = centerArray[f_no + 1][f][j][0];
+							y2 = centerArray[f_no + 1][f][j][1];
+
+							euclidian_dist = sqrtf(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+							if (euclidian_dist < Tolerance)correctBoxCount++;
+
 						}
 					}
-					if (f_no == 0)correctBoxesArray[0][f] = firstFileBoxCount - 1; // Her frame'de fazlal˝k 32'˝n box'˝ var.
+					if (f_no == 0)correctBoxesArray[0][f] = firstFileBoxCount - 1; // Her frame'de fazlalƒ±k 100.0'ƒ±n box'ƒ± var.
 					//cout << correctBoxesArray[0][f] << endl;
 					correctBoxesArray[f_no + 1][f] = correctBoxCount;
 					for (int b = 0; centerArray[f_no + 1][f][b][0] != 32; b++)
@@ -398,7 +401,7 @@ namespace NetworkCompareForDarknet {
 			for (int f_no = 0; f_no < fileCount; f_no++) {
 				totalCorrectBoxArray[f_no] = 0;
 				for (int f = 0; f < frameCount; f++)
-					totalCorrectBoxArray[f_no] += correctBoxesArray[f_no][f];//file2 ve file3 al˝cak
+					totalCorrectBoxArray[f_no] += correctBoxesArray[f_no][f];//file2 ve file3 al√Ωcak
 				//cout << totalCorrectBoxArray[f_no] << endl;
 
 				if (f_no != 0)totalCorrectBoxArray[f_no] = (totalCorrectBoxArray[f_no] * 100.0f) / totalCorrectBoxArray[0];
@@ -407,7 +410,7 @@ namespace NetworkCompareForDarknet {
 			for (int f_no = 0; f_no < fileCount; f_no++) {
 				string seriesName = "File";
 				seriesName += std::to_string(f_no + 1);
-				String^ str = gcnew String(seriesName.c_str()); //std::string --> System::String'e dˆn¸˛t¸r¸ld¸.
+				String^ str = gcnew String(seriesName.c_str()); //std::string --> System::String'e d√∂n√º√æt√ºr√ºld√º.
 				chart1->Series->Add(str);
 				chart1->Series[str]->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Point;
 				chart2->Series->Add(str);
